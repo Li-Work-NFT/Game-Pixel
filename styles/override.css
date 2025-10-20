@@ -1,0 +1,24 @@
+
+/* styles/override.css — адаптивные фиксы */
+html, body { margin:0; padding:0; max-width:100vw; overflow-x:hidden; }
+#central-game-area, .central-game-area, .game-area, .game-container {
+  width: min(1200px, 96vw);
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+#scene-description, .scene-description {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+#game-log, #event-log, #log, .game-log, .log {
+  max-height: 28vh !important;
+  overflow-y: auto !important;
+}
+#action-buttons, .action-buttons, #map-location-buttons, .map-location-buttons {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+button { max-width: 100%; }
+@media (max-width: 1200px) {
+  h1, h2 { font-size: clamp(18px, 3vw, 32px); }
+}

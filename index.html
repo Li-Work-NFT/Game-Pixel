@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Хроники Пиксельного Пути</title>
+    <!-- Пиксельный шрифт от Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/override.css">
+</head>
+<body>
+    <div id="game-container">
+
+        <!-- --- ЭКРАН 0: СТАРТОВЫЙ ЭКРАН (Теперь это первая страница!) --- -->
+        <div id="start-screen" class="game-screen active">
+            <h1>ХРОНИКИ ПИКСЕЛЬНОГО ПУТИ</h1>
+            <p>Добро пожаловать в мир приключений!</p>
+            <button id="btn-start-new-game">Начать Новую Игру</button>
+            <button id="btn-load-game" disabled>Загрузить Игру (пока недоступно)</button>
+        </div>
+
+        <!-- --- ЭКРАН 1: СОЗДАНИЕ ПЕРСОНАЖА --- -->
+        <!-- Этот экран будет скрыт до выбора "Новой Игры" -->
+        <div id="character-creation-screen" class="game-screen hidden">
+            <h2>СОЗДАНИЕ ПЕРСОНАЖА</h2>
+            <p>Назови себя:</p>
+            <input type="text" id="character-name-input" placeholder="Имя героя">
+            <p>Выбери свой путь:</p>
+            <div class="class-selection">
+                <!-- Кнопка Воина -->
+                <button data-class="Воин">
+                    <div class="class-avatar warrior"></div> <!-- Место для картинки аватара класса -->
+                    <h3>Воин</h3>
+                    <p>💪 Крепок в ближнем бою.</p>
+                    <p class="stats-bonus">+3 Сила, +2 Выносливость</p>
+                </button>
+                <!-- Кнопка Охотника -->
+                <button data-class="Охотник">
+                    <div class="class-avatar hunter"></div> <!-- Место для картинки аватара класса -->
+                    <h3>Охотник</h3>
+                    <p>🏹 Меткий и ловкий стрелок.</p>
+                    <p class="stats-bonus">+3 Ловкость, +1 Интеллект</p>
+                </button>
+                <!-- Кнопка Мага -->
+                <button data-class="Маг">
+                    <div class="class-avatar mage"></div> <!-- Место для картинки аватара класса -->
+                    <h3>Маг</h3>
+                    <p>✨ Мудр и владеет магией.</p>
+                    <p class="stats-bonus">+3 Интеллект, +1 Выносливость</p>
+                </button>
+                <!-- Кнопка Ремесленника (Новый класс!) -->
+                <button data-class="Ремесленник">
+                    <div class="class-avatar craftsman"></div> <!-- Место для картинки аватара класса -->
+                    <h3>Ремесленник</h3>
+                    <p>🛠️ Мастер на все руки. Умён и вынослив.</p>
+                    <p class="stats-bonus">+2 Интеллект, +2 Выносливость</p>
+                </button>
+            </div>
+            <button id="btn-create-character" disabled>НАЧАТЬ ПРИКЛЮЧЕНИЕ</button>
+        </div>
+
+        <!-- --- ЭКРАН 2: ОСНОВНАЯ ИГРА --- -->
+        <!-- Этот экран будет скрыт до создания персонажа -->
+        <div id="game-play-screen" class="game-screen hidden">
+            <!-- Верхняя панель игрока (постоянная) -->
+            <div id="top-player-bar" class="game-panel">
+                <!-- Класс player-avatar-воин/охотник/маг будет добавляться JS-ом -->
+                <div class="player-avatar"></div> 
+                <div class="player-stats-summary">
+                    <p>Имя: <span id="player-name"></span></p>
+                    <p>Класс: <span id="player-class"></span></p>
+                    <p>Уровень: <span id="player-level">1</span></p>
+                    <p>XP: <span id="player-xp">0</span>/<span id="player-xp-to-level">100</span></p>
+                    <div class="progress-bar-container"><div id="xp-bar" class="progress-bar xp"></div></div>
+                    <p>HP: <span id="player-hp">100</span>/<span id="player-max-hp">100</span></p>
+                    <div class="progress-bar-container"><div id="hp-bar" class="progress-bar hp"></div></div>
+                    <p>MP: <span id="player-mp">50</span>/<span id="player-max-mp">50</span></p>
+                    <div class="progress-bar-container"><div id="mp-bar" class="progress-bar mp"></div></div>
+                    <p>Золото: 💰<span id="player-gold">0</span></p>
+                </div>
+            </div>
+
+            <!-- Центральная область: Описание сцены, сообщения, действия -->
+            <!-- Background-image для этой области будет меняться в JS в зависимости от локации -->
+            <div id="central-game-area">
+                <div id="scene-description" class="game-panel">
+                    <h3 id="location-name">Текущая локация</h3>
+                    <p id="location-text">Описание локации.</p>
+                </div>
+                <div id="game-log" class="game-panel">
+                    <!-- Сообщения игры здесь -->
+                </div>
+                <div id="location-actions" class="game-panel">
+                    <h3>Что будешь делать?</h3>
+                    <div id="action-buttons">
+                        <!-- Кнопки действий появятся здесь -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Нижняя панель навигации (постоянная) -->
+            <div id="bottom-nav-bar" class="game-panel">
+                <button id="btn-map">🗺️ Карта</button>
+                <button id="btn-inventory">🎒 Инвентарь</button>
+                <button id="btn-quests">📜 Задания</button>
+                <button id="btn-character">👤 Персонаж</button>
+            </div>
+        </div>
+
+        <!-- --- ЭКРАН 3: КАРТА --- -->
+        <div id="map-screen" class="game-screen hidden">
+            <h2>🗺️ КАРТА МИРА</h2>
+            <div id="world-map" class="game-panel">
+                <p>Ты сейчас в: <span id="map-current-location"></span></p>
+                <div id="map-location-buttons">
+                    <!-- Кнопки перемещения сюда -->
+                </div>
+            </div>
+            <button class="back-button" data-target="game-play-screen">⬅️ Назад</button>
+        </div>
+
+        <!-- --- ЭКРАН 4: ИНВЕНТАРЬ --- -->
+        <div id="inventory-screen" class="game-screen hidden">
+            <h2>🎒 ИНВЕНТАРЬ</h2>
+            <div id="inventory-layout">
+                <div id="equipped-slots" class="game-panel">
+                    <h3>Экипировка</h3>
+                    <!-- Слоты инвентаря. textContent для span будет обновляться JS, здесь базовый текст -->
+                    <!-- data-slottype добавлен для более точной работы JS -->
+                    <div class="equipment-slot" data-slot="weapon"><span class="slot-icon"></span><span id="eq-weapon" data-slottype="weapon">Оружие: (Пусто)</span></div>
+                    <div class="equipment-slot" data-slot="shield"><span class="slot-icon"></span><span id="eq-shield" data-slottype="shield">Щит: (Пусто)</span></div>
+                    <div class="equipment-slot" data-slot="armor"><span class="slot-icon"></span><span id="eq-armor" data-slottype="armor">Доспех: (Пусто)</span></div>
+                    <div class="equipment-slot" data-slot="helmet"><span class="slot-icon"></span><span id="eq-helmet" data-slottype="helmet">Шлем: (Пусто)</span></div>
+                    <div class="equipment-slot" data-slot="boots"><span class="slot-icon"></span><span id="eq-boots" data-slottype="boots">Ботинки: (Пусто)</span></div>
+                    <div class="equipment-slot" data-slot="accessory1"><span class="slot-icon"></span><span id="eq-accessory1" data-slottype="accessory1">Аксессуар 1: (Пусто)</span></div>
+                    <div class="equipment-slot" data-slot="accessory2"><span class="slot-icon"></span><span id="eq-accessory2" data-slottype="accessory2">Аксессуар 2: (Пусто)</span></div>
+                </div>
+                <div id="backpack-items" class="game-panel">
+                    <h3>Рюкзак</h3>
+                    <!-- Сетка инвентаря будет заполняться пустыми слотами через JS для постоянного вида -->
+                    <div id="inventory-grid"></div>
+                </div>
+                <div id="item-details-panel" class="game-panel">
+                    <h3>Детали Предмета</h3>
+                    <p id="detail-item-name">Выбери предмет</p>
+                    <p id="detail-item-description"></p>
+                    <p id="detail-item-stats"></p>
+                    <div id="detail-item-actions">
+                        <!-- Кнопки действий с предметом -->
+                    </div>
+                </div>
+            </div>
+            <button class="back-button" data-target="game-play-screen">⬅️ Назад</button>
+        </div>
+
+        <!-- --- ЭКРАН 5: ЗАДАНИЯ --- -->
+        <div id="quests-screen" class="game-screen hidden">
+            <h2>📜 ЖУРНАЛ ЗАДАНИЙ</h2>
+            <div class="quest-log-sections">
+                <div class="game-panel">
+                    <h3>Активные Задания</h3>
+                    <ul id="active-quests-list"></ul>
+                </div>
+                <div class="game-panel">
+                    <h3>Выполненные Задания</h3>
+                    <ul id="completed-quests-list"></ul>
+                </div>
+            </div>
+            <button class="back-button" data-target="game-play-screen">⬅️ Назад</button>
+        </div>
+
+        <!-- --- ЭКРАН 6: ПЕРСОНАЖ --- -->
+        <div id="character-screen" class="game-screen hidden">
+            <h2>👤 ПЕРСОНАЖ: <span id="char-screen-name"></span></h2>
+            <div id="character-details-layout">
+                <div class="game-panel character-main-stats">
+                    <p>Имя: <span id="char-name"></span></p>
+                    <p>Класс: <span id="char-class"></span></p>
+                    <p>Уровень: <span id="char-level">1</span></p>
+                    <p>XP: <span id="char-xp">0</span>/<span id="char-xp-to-level">100</span></p>
+                </div>
+                <div class="game-panel character-attributes">
+                    <h3>Характеристики:</h3>
+                    <p>Очки Навыков: <span id="skill-points">0</span></p>
+                    <p>Сила (STR): <span id="attr-str"></span> <button class="add-attribute-btn" data-attribute="str">+</button></p>
+                    <p>Ловкость (DEX): <span id="attr-dex"></span> <button class="add-attribute-btn" data-attribute="dex">+</button></p>
+                    <p>Интеллект (INT): <span id="attr-int"></span> <button class="add-attribute-btn" data-attribute="int">+</button></p>
+                    <p>Выносливость (VIT): <span id="attr-vit"></span> <button class="add-attribute-btn" data-attribute="vit">+</button></p>
+                </div>
+                <div class="game-panel character-derived-stats">
+                    <h3>Производные:</h3>
+                    <p>Макс. HP: <span id="derived-max-hp"></span></p>
+                    <p>Макс. MP: <span id="derived-max-mp"></span></p>
+                    <p>Атака физ.: <span id="derived-phys-atk"></span></p>
+                    <p>Атака маг.: <span id="derived-mag-atk"></span></p>
+                    <p>Защита: <span id="derived-def"></span></p>
+                    <p>Шанс крита: <span id="derived-crit"></span>%</p>
+                    <p>Шанс уворота: <span id="derived-dodge"></span>%</p>
+                </div>
+                <div class="game-panel character-skills">
+                    <h3>Навыки Класса:</h3>
+                    <ul id="class-skills-list"></ul>
+                </div>
+            </div>
+            <button class="back-button" data-target="game-play-screen">⬅️ Назад</button>
+        </div>
+        
+        <!-- --- ЭКРАН 7: МАГАЗИН --- -->
+        <div id="shop-screen" class="game-screen hidden">
+            <h2 id="shop-name"></h2>
+            <div id="shop-layout">
+                <div id="shop-items-panel" class="game-panel">
+                    <h3>Товары на продажу</h3>
+                    <div id="shop-grid"></div>
+                </div>
+                <div id="shop-details-panel" class="game-panel">
+                    <h3>Детали товара</h3>
+                    <p id="shop-detail-item-name">Выбери товар</p>
+                    <p id="shop-detail-item-description"></p>
+                    <p id="shop-detail-item-stats"></p>
+                    <p class="current-gold-display">💰 Твое золото: <span id="shop-player-gold">0</span></p>
+                    <p>Цена: 💰<span id="shop-detail-item-price"></span></p>
+                    <div id="shop-detail-item-actions">
+                        <button id="buy-button" disabled>КУПИТЬ</button>
+                    </div>
+                </div>
+            </div>
+            <button class="back-button" data-target="game-play-screen">⬅️ Назад</button>
+        </div>
+
+        <!-- --- ЭКРАН 8: Шахта (Новое) --- -->
+        <!-- Создадим этот экран, даже если пока его функционал будет минимальным -->
+        <div id="mine-screen" class="game-screen hidden">
+            <h2>⛏️ ШАХТА</h2>
+            <div class="game-panel">
+                <p>Ты у входа в темную и сырую шахту. Воздух здесь тяжелый, но чувствуется запах металла.</p>
+                <div id="mine-actions">
+                    <button onclick="mineOre()">Добывать руду</button>
+                    <button onclick="moveTo('Город')">Вернуться в Город</button>
+                </div>
+            </div>
+            <button class="back-button" data-target="game-play-screen">⬅️ Назад</button>
+        </div>
+
+    </div>
+
+    <script src="src/legacy.base.js"></script>
+    <script src="src/overrides.compat.js"></script>
+</body>
+</html>
+<!-- --- КОНЕЦ КОДА --- -->
